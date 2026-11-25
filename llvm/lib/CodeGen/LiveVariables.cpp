@@ -138,6 +138,37 @@ void LiveVariables::MarkVirtRegAliveInBlock(
   // Mark the variable known alive in this bb
   VRInfo.AliveBlocks.set(BBNum);
 
+  if (MBB == &MF->front())
+  {
+      // SideFX:
+      // The recursion through blocks isn't super smart, it's possible
+      // that this can actually happen.
+      //  Block 0:  Succ #1
+      //  Block 1:  Pred #0, Succ #2, #4
+      //        def vreg1
+      //  Block 2:  Pred #0, #1, #3, Succ #5, #4
+      //  Block 3:  Pred #4 (loop), Succ #4, #2
+      //        ref vreg1
+      //  Block 4:  Pred #1, #3, #2, Succ #3, #5
+      //  Block 5:  Pred #4, #2
+      // When we call MarkVirtRegAliveInBlock(vrinfo, 1, 3) for vreg1 we end up
+      //     Block 3:  push 2, 4
+      //           4:  push 2, 3, 1
+      //           2:  push 3, 1, 0
+      //           0:  -- error --
+      // It's because we never check to see whether the variable is referenced
+      // in a predecessor.  Since #2 has the defining block (#1) but also other
+      // predecessors, we can get messed up.
+      //
+      // Note that this kind of configuration will create what LLVM considers
+      // an invalid machine in that vreg1 can have a register in use before its
+      // definition.  But this isn't actually true - just a weird bending of
+      // the predecssor/successor rules.  The validator will throw the error:
+      //
+      // *** Bad machine code: Virtual register defs don't dominate all uses. ***
+      return;
+  }
+
   assert(MBB != &MF->front() && "Can't find reaching def for virtreg");
   WorkList.insert(WorkList.end(), MBB->pred_rbegin(), MBB->pred_rend());
 }
