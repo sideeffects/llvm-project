@@ -44,8 +44,8 @@ public:
   const uint32_t RegSetOff; ///< Relative offset to uint8_t array.
   const uint32_t NameIdx;
   const uint32_t RegSizeInBits;
-  const uint16_t RegsSize;
-  const uint16_t RegSetSize;
+  const uint32_t RegsSize;
+  const uint32_t RegSetSize;
   const uint16_t ID;
   const uint8_t CopyCost;
   const bool Allocatable;
@@ -242,7 +242,7 @@ struct MCRegisterDesc {
 
   // Points to the list of register units. The low bits hold the first regunit
   // number, the high bits hold an offset into DiffLists. See MCRegUnitIterator.
-  uint32_t RegUnits;
+  uint64_t RegUnits;
 
   /// Index into list with lane mask sequences. The sequence contains a lanemask
   /// for every register unit.
@@ -777,7 +777,7 @@ class MCRegUnitIterator
                                    MCRegisterInfo::DiffListIterator,
                                    std::forward_iterator_tag, const MCRegUnit> {
   // The value must be kept in sync with RegisterInfoEmitter.cpp.
-  static constexpr unsigned RegUnitBits = 12;
+  static constexpr unsigned RegUnitBits = 32;
   // Cache the current value, so that we can return a reference to it.
   MCRegUnit Val;
 
@@ -788,8 +788,8 @@ public:
   MCRegUnitIterator(MCRegister Reg, const MCRegisterInfo *MCRI) {
     assert(Reg.isPhysical());
     // Decode the RegUnits MCRegisterDesc field.
-    unsigned RU = MCRI->get(Reg).RegUnits;
-    unsigned FirstRU = RU & ((1u << RegUnitBits) - 1);
+    uint64_t RU = MCRI->get(Reg).RegUnits;
+    unsigned FirstRU = RU & ((uint64_t(1) << RegUnitBits) - 1);
     unsigned Offset = RU >> RegUnitBits;
     I.init(FirstRU, MCRI->DiffLists + Offset);
     Val = MCRegUnit(*I);

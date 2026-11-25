@@ -88,7 +88,8 @@ private:
   /// TiedTo - Non-zero when this register operand is tied to another register
   /// operand. The encoding of this field is described in the block comment
   /// before MachineInstr::tieOperands().
-  unsigned TiedTo : 4;
+  /// SideFX.  Increased size to 12.
+  unsigned TiedTo : 12;
 
   /// IsDef - True if this is a def, false if this is a use of the register.
   /// This is only valid on register operands.
@@ -215,7 +216,7 @@ private:
     static_assert(sizeof(Contents) <= 2 * sizeof(void *),
                   "Contents should be at most two pointers");
     static_assert(sizeof(MachineOperand) <=
-                      alignTo<alignof(int64_t)>(2 * sizeof(unsigned) +
+                      alignTo<alignof(int64_t)>(3 * sizeof(unsigned) +
                                                 3 * sizeof(void *)),
                   "MachineOperand too big. Should be Kind, SmallContents, "
                   "ParentMI, and Contents");

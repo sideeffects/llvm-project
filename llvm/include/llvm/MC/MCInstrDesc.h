@@ -29,10 +29,9 @@ class MCInst;
 //===----------------------------------------------------------------------===//
 
 namespace MCOI {
-/// Operand constraints. These are encoded in 16 bits with one of the
-/// low-order 3 bits specifying that a constraint is present and the
-/// corresponding high-order hex digit specifying the constraint value.
-/// This allows for a maximum of 3 constraints.
+/// Operand constraints. Low bits indicate which constraints are present.
+/// Bits 16..27 encode a tied definition index; bits 28..31 are reserved
+/// for the early-clobber constraint value.
 enum OperandConstraint {
   TIED_TO = 0,  // Must be allocated the same register as specified value.
   EARLY_CLOBBER // If present, operand is an early clobber register.
@@ -40,7 +39,7 @@ enum OperandConstraint {
 
 // Define a macro to produce each constraint value.
 #define MCOI_TIED_TO(op) \
-  ((1 << MCOI::TIED_TO) | ((op) << (4 + MCOI::TIED_TO * 4)))
+  ((1 << MCOI::TIED_TO) | (uint32_t(op) << 16))
 
 #define MCOI_EARLY_CLOBBER \
   (1 << MCOI::EARLY_CLOBBER)
@@ -98,7 +97,7 @@ public:
   uint8_t OperandType;
 
   /// Operand constraints (see OperandConstraint enum).
-  uint16_t Constraints;
+  uint32_t Constraints;
 
   /// Set if this operand is a value that requires the current hwmode to look up
   /// its register class.
@@ -205,12 +204,12 @@ public:
 
   uint32_t Opcode;         // The opcode number.
   uint16_t NumOperands;    // Num of args (may be more if variable_ops)
-  uint8_t NumDefs;         // Num of args that are definitions
+  uint16_t NumDefs;        // Num of args that are definitions
   uint8_t Size;            // Number of bytes in encoding.
   uint16_t SchedClass;     // enum identifying instr sched class
   uint8_t NumImplicitUses; // Num of regs implicitly used
   uint8_t NumImplicitDefs; // Num of regs implicitly defined
-  uint16_t OpInfoOffset;   // Offset to info about operands
+  uint32_t OpInfoOffset;   // Offset to info about operands
   uint16_t ImplicitOffset; // Offset to start of implicit op list
   uint64_t Flags;          // Flags identifying machine instr class
   uint64_t TSFlags;        // Target Specific Flag values
@@ -221,8 +220,9 @@ public:
                            MCOI::OperandConstraint Constraint) const {
     if (OpNum < NumOperands &&
         (operands()[OpNum].Constraints & (1 << Constraint))) {
-      unsigned ValuePos = 4 + Constraint * 4;
-      return (int)(operands()[OpNum].Constraints >> ValuePos) & 0x0f;
+      unsigned ValuePos = Constraint == MCOI::TIED_TO ? 16 : 28;
+      unsigned ValueMask = Constraint == MCOI::TIED_TO ? 0x0fff : 0x0f;
+      return (int)(operands()[OpNum].Constraints >> ValuePos) & ValueMask;
     }
     return -1;
   }

@@ -1026,13 +1026,13 @@ void RegisterInfoEmitter::runMCDesc(raw_ostream &OS, raw_ostream &MainOS,
     unsigned FirstRU = Reg.getNativeRegUnits().find_first();
     unsigned Offset = DiffSeqs.get(RegUnitLists[i]);
     // The value must be kept in sync with MCRegisterInfo.h.
-    constexpr unsigned RegUnitBits = 12;
+    constexpr unsigned RegUnitBits = 32;
     assert(isUInt<RegUnitBits>(FirstRU) && "Too many regunits");
-    assert(isUInt<32 - RegUnitBits>(Offset) && "Offset is too big");
+    assert(isUInt<64 - RegUnitBits>(Offset) && "Offset is too big");
     OS << "  { " << RegStrings.get(Reg.getName().str()) << ", "
        << DiffSeqs.get(SubRegLists[i]) << ", " << DiffSeqs.get(SuperRegLists[i])
        << ", " << SubRegIdxSeqs.get(SubRegIdxLists[i]) << ", "
-       << (Offset << RegUnitBits | FirstRU) << ", "
+       << (uint64_t(Offset) << RegUnitBits | FirstRU) << ", "
        << LaneMaskSeqs.get(RegUnitLaneMasks[i]) << ", " << Reg.Constant << ", "
        << Reg.Artificial << " },\n";
     ++i;

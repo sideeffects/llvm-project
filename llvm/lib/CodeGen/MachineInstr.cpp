@@ -1197,8 +1197,8 @@ int MachineInstr::findFirstPredOperandIdx() const {
   return -1;
 }
 
-// MachineOperand::TiedTo is 4 bits wide.
-const unsigned TiedMax = 15;
+// MachineOperand::TiedTo is 12 bits wide.
+const unsigned TiedMax = (1u << 12) - 1;
 
 /// tieOperands - Mark operands at DefIdx and UseIdx as tied to each other.
 ///
