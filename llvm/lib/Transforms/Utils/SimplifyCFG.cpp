@@ -145,7 +145,7 @@ static cl::opt<unsigned>
                                   "instructions when hoisting"));
 
 static cl::opt<bool>
-    SinkCommon("simplifycfg-sink-common", cl::Hidden, cl::init(true),
+    SinkCommon("simplifycfg-sink-common", cl::Hidden, cl::init(false),
                cl::desc("Sink common instructions down to the end block"));
 
 static cl::opt<bool> HoistCondStores(
