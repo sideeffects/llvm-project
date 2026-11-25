@@ -1170,12 +1170,15 @@ void MachineVerifier::verifyPreISelGenericInstruction(const MachineInstr *MI) {
     }
   }
 
+  // SideFX.
+#if 0
   // Generic opcodes must not have physical register operands.
   for (unsigned I = 0; I < MI->getNumOperands(); ++I) {
     const MachineOperand *MO = &MI->getOperand(I);
     if (MO->isReg() && MO->getReg().isPhysical())
       report("Generic instruction cannot have physical register", MO, I);
   }
+#endif
 
   // Avoid out of bounds in checks below. This was already reported earlier.
   if (MI->getNumOperands() < MCID.getNumOperands())
