@@ -697,7 +697,7 @@ static bool GetDumpType(HKEY Key, MINIDUMP_TYPE &ResultType) {
 ///
 /// \returns zero error code if a mini dump created, actual error code
 /// otherwise.
-static std::error_code WINAPI
+[[maybe_unused]] static std::error_code WINAPI
 WriteWindowsDumpFile(PMINIDUMP_EXCEPTION_INFORMATION ExceptionInfo) {
   struct ScopedCriticalSection {
     ScopedCriticalSection() { EnterCriticalSection(&CriticalSection); }
@@ -810,6 +810,7 @@ static LONG WINAPI LLVMUnhandledExceptionFilter(LPEXCEPTION_POINTERS ep) {
                            ep->ExceptionRecord->ExceptionCode)
                  << "\n";
 
+#if 0
   // We'll automatically write a Minidump file here to help diagnose
   // the nasty sorts of crashes that aren't 100% reproducible from a set of
   // inputs (or in the event that the user is unable or unwilling to provide a
@@ -834,6 +835,14 @@ static LONG WINAPI LLVMUnhandledExceptionFilter(LPEXCEPTION_POINTERS ep) {
   LocalPrintStackTrace(llvm::errs(), ep ? &ContextCopy : nullptr);
 
   return EXCEPTION_EXECUTE_HANDLER;
+#else
+  // SideFX: Houdini has its own crash handler. Leave crash reporting and
+  // stack unwinding to the previous filter, preserving the exception context
+  // and allowing Windows to handle the exception if no filter was installed.
+  if (OldFilter)
+    return OldFilter(ep);
+  return EXCEPTION_CONTINUE_SEARCH;
+#endif
 }
 
 static BOOL WINAPI LLVMConsoleCtrlHandler(DWORD dwCtrlType) {
