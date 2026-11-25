@@ -214,7 +214,7 @@ static Loop *separateNestedLoop(Loop *L, BasicBlock *Preheader,
                                 ScalarEvolution *SE, bool PreserveLCSSA,
                                 AssumptionCache *AC, MemorySSAUpdater *MSSAU) {
   // Don't try to separate loops without a preheader.
-  if (!Preheader)
+  if (1 || !Preheader)
     return nullptr;
 
   // Treat the presence of convergent functions conservatively. The
