@@ -204,7 +204,7 @@ bool LiveRangeCalc::findReachingDefs(LiveRange &LR, MachineBasicBlock &UseMBB,
   for (unsigned i = 0; i != WorkList.size(); ++i) {
     MachineBasicBlock *MBB = MF->getBlockNumbered(WorkList[i]);
 
-#ifndef NDEBUG
+#if 0 //ndef NDEBUG
     if (MBB->pred_empty()) {
       MBB->getParent()->verify(nullptr, nullptr, &errs());
       errs() << "Use of " << printReg(PhysReg, MRI->getTargetRegisterInfo())
