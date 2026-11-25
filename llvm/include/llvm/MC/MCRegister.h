@@ -18,7 +18,7 @@ namespace llvm {
 
 /// An unsigned integer type large enough to represent all physical registers,
 /// but not necessarily virtual registers.
-using MCPhysReg = uint16_t;
+using MCPhysReg = uint32_t;
 
 /// Register units are used to compute register aliasing. Every register has at
 /// least one register unit, but it can have more. Two registers overlap if and
