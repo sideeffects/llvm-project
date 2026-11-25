@@ -1993,7 +1993,7 @@ bool RegisterCoalescer::canJoinPhys(const CoalescerPair &CP) {
   }
 
   LiveInterval &JoinVInt = LIS->getInterval(CP.getSrcReg());
-  if (JoinVInt.containsOneValue())
+  if (CP.isFlipped() && JoinVInt.containsOneValue())
     return true;
 
   LLVM_DEBUG(
