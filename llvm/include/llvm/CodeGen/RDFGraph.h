@@ -675,7 +675,17 @@ struct DataFlowGraph {
     Config() = default;
     Config(unsigned Opts) : Options(Opts) {}
     Config(ArrayRef<const TargetRegisterClass *> RCs) : Classes(RCs) {}
+
+#if 0
+  //
+  // SideFX.
+  // These overloads are no longer needed since MCPhysReg is 32-bit.
+  // The RegisterId overload already takes care of this.
+  //
+
     Config(ArrayRef<MCPhysReg> Track) : TrackRegs(Track.begin(), Track.end()) {}
+#endif
+
     Config(ArrayRef<RegisterId> Track)
         : TrackRegs(Track.begin(), Track.end()) {}
 

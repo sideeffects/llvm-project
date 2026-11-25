@@ -132,6 +132,14 @@ public:
   constexpr bool operator!=(unsigned Other) const { return Reg != Other; }
   constexpr bool operator==(int Other) const { return Reg == unsigned(Other); }
   constexpr bool operator!=(int Other) const { return Reg != unsigned(Other); }
+
+#if 0
+  //
+  // SideFX.
+  // These overloads are no longer needed since MCPhysReg is 32-bit.
+  // The unsigned overloads already take care of this.
+  //
+
   // MSVC requires that we explicitly declare these two as well.
   constexpr bool operator==(MCPhysReg Other) const {
     return Reg == unsigned(Other);
@@ -139,6 +147,7 @@ public:
   constexpr bool operator!=(MCPhysReg Other) const {
     return Reg != unsigned(Other);
   }
+#endif
 
   /// Operators to move from one register to another nearby register by adding
   /// an offset.

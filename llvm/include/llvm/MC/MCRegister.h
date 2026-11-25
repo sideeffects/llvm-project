@@ -18,7 +18,8 @@ namespace llvm {
 
 /// An unsigned integer type large enough to represent all physical registers,
 /// but not necessarily virtual registers.
-using MCPhysReg = uint16_t;
+///  SideFX.  Increased the size to 32-bit.
+using MCPhysReg = uint32_t;
 
 /// Register units are used to compute register aliasing. Every register has at
 /// least one register unit, but it can have more. Two registers overlap if and
@@ -98,6 +99,13 @@ public:
   constexpr bool operator!=(unsigned Other) const { return Reg != Other; }
   constexpr bool operator==(int Other) const { return Reg == unsigned(Other); }
   constexpr bool operator!=(int Other) const { return Reg != unsigned(Other); }
+#if 0
+  //
+  // SideFX.
+  // These overloads are no longer needed since MCPhysReg is 32-bit.
+  // The unsigned overloads already take care of this.
+  //
+
   // MSVC requires that we explicitly declare these two as well.
   constexpr bool operator==(MCPhysReg Other) const {
     return Reg == unsigned(Other);
@@ -105,6 +113,7 @@ public:
   constexpr bool operator!=(MCPhysReg Other) const {
     return Reg != unsigned(Other);
   }
+#endif
 };
 
 // Provide DenseMapInfo for MCRegister
