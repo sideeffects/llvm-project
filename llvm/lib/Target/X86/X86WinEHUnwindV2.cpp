@@ -303,7 +303,12 @@ runAnalysisOnFuncOrFunclet(MachineFunction &MF, MachineFunction::iterator &Iter,
         if (State == FunctionState::InEpilog) {
           Register Reg = MI.getOperand(0).getReg();
           if (HasStackAlloc && (PoppedRegCount == 0) &&
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ == 11)
+		// SideFX.  Workaround for g++11.
+              !llvm::is_contained(PushedRegs, Reg.id())) {
+#else
               !llvm::is_contained(PushedRegs, Reg)) {
+#endif
             // If this is a pop that doesn't correspond to the set of pushed
             // registers, then assume it was used to adjust the stack pointer.
             HasStackDealloc = true;
